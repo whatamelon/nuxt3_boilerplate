@@ -1,0 +1,199 @@
+<template>
+
+    <div class="container mx-auto">
+
+        <div class="flex w-full space-x-7 pt-8">
+            <!-- <aside class="w-1/6">
+
+            </aside> -->
+
+            <div class="w-full">
+                <div v-if="pending">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-x-7 gap-y-12 mt-5 pb-20">
+                        <div 
+                        v-for="(pskeleton, idx) in skeletons"
+                        :key="'prd_'+ idx"
+                        >
+                            <div class="aspect-w-2 aspect-h-3">
+                                <div class="w-full h-full bg-gray-100"></div>
+                            </div>
+                            <div class="mt-2 w-full h-8 bg-gray-100"></div>
+                        </div>
+                    </div>
+                </div>
+                <div v-else>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-x-7 gap-y-12 mt-5 pb-20">
+                        <nuxt-link
+                        :to="'/product/'+product.prodId"
+                        v-for="(product, idx) in arrs"
+                        :key="'prd_'+ idx"
+                        >
+                            <div 
+                            class="aspect-w-2 aspect-h-3"
+                            >
+                                <img 
+                                :src="product.imgLink" 
+                                class="w-full h-full object-center object-cover"
+                                />
+
+                            </div>
+                            <p class="pt-2 line-clamp-2 break-all">{{ product.prodId }}</p>
+                            <p class="pt-2 line-clamp-2 break-all">{{ product.name }}</p>
+                        </nuxt-link>
+                    </div>
+
+                    <div class="my-10 w-full mx-auto" v-if="isLoading == true">
+                        <div class="">
+                            Loading,,,
+                        </div>
+
+                    </div>
+
+                    <!-- <div class="my-10 w-full">
+                        <div class="flex space-x-4 mx-auto text-center w-fit">
+                            <div 
+                            v-for="(pg, idx) in pages"
+                            :key="'page_'+ idx"
+                            @click="clickPage(idx+1)" 
+                            class="w-10 h-10 cursor-pointer"
+                            :class="{
+                                'text-white bg-black' : page == idx+1
+                            }"
+                            >{{ idx + 1 }}</div>
+                        </div>
+                    </div> -->
+
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+</template>
+
+<script setup>
+
+const route = useRoute();
+console.log(route.fullPath)
+
+let page = ref(1);
+let isLoading = ref(false)
+let skeletons = ref(Array(30))
+let pages = ref(Array(5))
+let arrs = ref([]);
+
+const { pending, data: prodList } = await useLazyAsyncData(
+  'prodList',
+  () => $fetch( `/v1/prods/list10`, {
+    method: 'GET',
+    baseURL: 'https://rdev.the-relay.kr',
+    headers: {'BrandDomain': 'kolon'},
+    params: {
+    //   offset: (route.query.page*30)-30,
+      offset: (page.value*30)-30,
+      limit:30,
+      sub_brand:'',
+      cat:'200000',
+      grade:'',
+      pr:'',
+      order:'de'
+    }
+  } ), 
+//   {
+//     watch: [page]
+//   }
+);
+
+watch(prodList, (newData) => {
+    console.log(newData)
+    arrs.value = newData.result.prodList;
+});
+
+// console.log(prodList)
+
+function clickPage(selectPage) {
+
+    page.value = selectPage;
+    // const router = useRouter();
+    // const route = useRoute();
+    // router.push({ path:route.path, query: {
+    //     ...route.query,
+    //     page: selectPage
+    // }});
+    window.scrollTo(0,0);
+}
+
+async function getMoreData(el) {
+    const scrollY = window.scrollY + window.innerHeight + 2;
+    const bodyScroll = document.body.offsetHeight;
+
+    // console.log("Scroll Y : " + scrollY);
+    // console.log("Body : " + bodyScroll);
+
+    if((scrollY >= bodyScroll) && isLoading.value == false ) {
+        isLoading.value = true;
+
+        page.value++;
+        // setTimeout(() => {
+        // isLoading.value = false;
+        // }, 5000);
+        const { data, pending, error, refresh } = await useFetch(
+            `/v1/prods/list10`, {
+                method: 'GET',
+                baseURL: 'https://rdev.the-relay.kr',
+                headers: {'BrandDomain': 'kolon'},
+                params: {
+                    //   offset: (route.query.page*30)-30,
+                    offset: (page.value*30)-30,
+                    limit:30,
+                    sub_brand:'',
+                    cat:'200000',
+                    grade:'',
+                    pr:'',
+                    order:'de'
+                },onRequest({ request, options }) {
+                    console.log('---------------')
+                    console.log('pageValue,,,',page.value)
+                },
+                onResponse({ request, response, options }) {
+                    console.log(response)
+                    arrs.value = arrs.value.concat(response._data.result.prodList);
+                    isLoading.value = false;
+                },
+                onResponseError({ request, response, options }) {
+                }
+            } 
+        );
+
+    }
+}
+
+onMounted(() => {
+    console.log('onMounted')
+
+    window.addEventListener("scroll", getMoreData);
+})
+
+
+onBeforeUnmount(() => {
+    console.log('onBeforeUnmount')
+});
+
+onUnmounted(() => {
+    console.log('onUnmounted')
+});
+
+onActivated(() => {
+    console.log('onActivated')
+    window.addEventListener("scroll", getMoreData);
+});
+
+onDeactivated(() => {
+    console.log('onDeactivated')
+    window.removeEventListener('scroll',getMoreData);
+});
+
+
+</script>

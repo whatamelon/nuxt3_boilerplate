@@ -3,9 +3,6 @@
     <div class="container mx-auto">
 
         <div class="flex w-full space-x-7 pt-8">
-            <!-- <aside class="w-1/6">
-
-            </aside> -->
 
             <div class="w-full">
                 <div v-if="pending">
@@ -23,29 +20,15 @@
                 </div>
                 <div v-else>
                     <div class="grid grid-cols-2 md:grid-cols-5 gap-x-7 gap-y-12 mt-5 pb-20">
-                        <nuxt-link
-                        :to="'/product/'+product.prodId"
+                        <FeatureProduct
                         v-for="(product, idx) in arrs"
                         :key="'prd_'+ idx"
-                        >
-                            <div 
-                            class="aspect-w-2 aspect-h-3"
-                            >
-                                <img 
-                                :src="product.imgLink" 
-                                class="w-full h-full object-center object-cover"
-                                />
-
-                            </div>
-                            <p class="pt-2 line-clamp-2 break-all">{{ product.prodId }}</p>
-                            <p class="pt-2 line-clamp-2 break-all">{{ product.name }}</p>
-                        </nuxt-link>
+                        :product="product"
+                        ></FeatureProduct>
                     </div>
 
                     <div class="my-10 w-full mx-auto" v-if="isLoading == true">
-                        <div class="">
-                            Loading,,,
-                        </div>
+                        <img src="/images/loading.gif" class="w-20 h-20 mx-auto flex" />
 
                     </div>
 

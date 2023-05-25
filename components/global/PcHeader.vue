@@ -1,14 +1,17 @@
 <template>
-    <div class="flex justify-between bg-white text-gray-800 h-14 text-xl container mx-auto">
-        <a href="/" class="my-auto cursor-pointer">home</a>
+    <div class="fixed border-b border-gray-200 bg-white w-full" style="z-index:999;">
+        <div class="flex justify-between text-gray-800 h-14 text-xl container mx-auto px-5 md:px-0">
+            <a href="/" class="my-auto cursor-pointer">home</a>
 
-        <div class="flex space-x-4">
-            <nuxt-link to="/product_list" class="my-auto cursor-pointer">구매하기</nuxt-link>
+            <div class="flex space-x-4">
+                <!-- <a href="/product_list" class="my-auto cursor-pointer">구매하기</a> -->
+                <nuxt-link to="/product_list" class="my-auto cursor-pointer">구매하기</nuxt-link>
 
-            <nuxt-link v-if="store.IS_LOGGED_IN == false" to="/login" class="my-auto">시작하기</nuxt-link>
-            <div v-else class="flex space-x-4">
-                <b @click="logout" class="my-auto cursor-pointer">로그아웃</b>
-                <b class="my-auto">{{ store.USER_ID }}</b>
+                <nuxt-link v-if="store.IS_LOGGED_IN == false" to="/login" class="my-auto">시작하기</nuxt-link>
+                <div v-else class="flex space-x-4">
+                    <b @click="logout" class="my-auto cursor-pointer">로그아웃</b>
+                    <b class="my-auto">{{ store.USER_ID }}</b>
+                </div>
             </div>
         </div>
     </div>

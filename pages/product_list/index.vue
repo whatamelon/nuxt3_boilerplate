@@ -2,11 +2,11 @@
 
     <div class="container mx-auto">
 
-        <div class="flex w-full space-x-7 pt-8">
+        <div class="flex w-full space-x-7">
 
             <div class="w-full">
                 <div v-if="pending">
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-x-7 gap-y-12 mt-5 pb-20">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-x-7 gap-y-12 mt-5 pb-20 px-5 md:px-0">
                         <div 
                         v-for="(pskeleton, idx) in skeletons"
                         :key="'prd_'+ idx"
@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div v-else>
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-x-7 gap-y-12 mt-5 pb-20">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-x-7 gap-y-12 mt-5 pb-20 px-5 md:px-0">
                         <FeatureProduct
                         v-for="(product, idx) in arrs"
                         :key="'prd_'+ idx"
@@ -67,34 +67,30 @@ let skeletons = ref(Array(30))
 let pages = ref(Array(5))
 let arrs = ref([]);
 
-const { pending, data: prodList } = await useLazyAsyncData(
-  'prodList',
-  () => $fetch( `/v1/prods/list10`, {
+const { pending, data: prodList } = await useLazyFetch( `/v1/prods/list10`, {
     method: 'GET',
     baseURL: 'https://rdev.the-relay.kr',
     headers: {'BrandDomain': 'kolon'},
     params: {
     //   offset: (route.query.page*30)-30,
-      offset: (page.value*30)-30,
-      limit:30,
-      sub_brand:'',
-      cat:'200000',
-      grade:'',
-      pr:'',
-      order:'de'
+    offset: (page.value*30)-30,
+    limit:30,
+    sub_brand:'',
+    cat:'200000',
+    grade:'',
+    pr:'',
+    order:'de'
     }
-  } ), 
+}); 
 //   {
 //     watch: [page]
 //   }
-);
+
 
 watch(prodList, (newData) => {
     console.log(newData)
     arrs.value = newData.result.prodList;
 });
-
-// console.log(prodList)
 
 function clickPage(selectPage) {
 
@@ -112,23 +108,16 @@ async function getMoreData(el) {
     const scrollY = window.scrollY + window.innerHeight + 2;
     const bodyScroll = document.body.offsetHeight;
 
-    // console.log("Scroll Y : " + scrollY);
-    // console.log("Body : " + bodyScroll);
-
     if((scrollY >= bodyScroll) && isLoading.value == false ) {
         isLoading.value = true;
 
         page.value++;
-        // setTimeout(() => {
-        // isLoading.value = false;
-        // }, 5000);
         const { data, pending, error, refresh } = await useFetch(
             `/v1/prods/list10`, {
                 method: 'GET',
                 baseURL: 'https://rdev.the-relay.kr',
                 headers: {'BrandDomain': 'kolon'},
                 params: {
-                    //   offset: (route.query.page*30)-30,
                     offset: (page.value*30)-30,
                     limit:30,
                     sub_brand:'',
@@ -136,7 +125,8 @@ async function getMoreData(el) {
                     grade:'',
                     pr:'',
                     order:'de'
-                },onRequest({ request, options }) {
+                },
+                onRequest({ request, options }) {
                     console.log('---------------')
                     console.log('pageValue,,,',page.value)
                 },
@@ -153,7 +143,7 @@ async function getMoreData(el) {
     }
 }
 
-onMounted(() => {
+onMounted(async () => {
     console.log('onMounted')
 
     window.addEventListener("scroll", getMoreData);

@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     },
     modules: [
       'nuxt-swiper',
+      '@nuxtjs/device',
       [
         '@pinia/nuxt',
         {

@@ -1,5 +1,5 @@
 <template>
-    <div class="container max-w-md mt-40 mx-auto">
+    <div class="container max-w-md pt-40 mx-auto px-5 md:px-0">
         <h2>로그인</h2>
         <div class="space-y-4 flex flex-col mt-8">
             <input type="text" placeholder="이메일" v-model="id" class="form-input
